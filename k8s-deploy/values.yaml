@@ -1,0 +1,39 @@
+name: <+service.name>
+replicas: 1
+
+
+namespace: <+infra.namespace>
+createNamespace: "true"
+image: <+artifact.image>
+dockercfg: <+artifact.imagePullSecret>
+
+# A Service can map an incoming port to any targetPort.
+# targetPort is where application is listening on inside the container.
+servicePort: <+service.variables.service_port>
+serviceTargetPort: <+service.variables.service_target_port>
+serviceType: <+service.variables.service_type>
+servicePortName: <+service.variables.service_port_name>
+
+
+# Deployment service account
+serviceAccount: <+service.variables.service_account>
+
+
+#Container details
+containerPort: <+service.variables.container_port>
+
+
+#Container Spec
+requests:
+  cpu: <+service.variables.container_requests_cpu>
+  memory: <+service.variables.container_requests_memory>
+limits:
+  cpu: <+service.variables.container_limits_cpu>
+  memory: <+service.variables.container_limits_memory>
+
+
+env:
+  config:
+    PORT: <+service.variables.container_port>
+  secrets:
+    key2: value2
