@@ -72,6 +72,18 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
         image: {{.Values.image}}
+        env:
+        {{- if or .Values.env.config .Values.env.secrets}}
+        envFrom:
+        {{- if .Values.env.config}}
+        - configMapRef:
+            name: {{lower .Values.name}}
+        {{- end}}
+        {{- if .Values.env.secrets}}
+        - secretRef:
+            name: {{lower .Values.name}}
+        {{- end}}
+        {{- end}}    
         ports:
         - containerPort: {{.Values.containerPort}}
         resources:
@@ -83,11 +95,11 @@ spec:
             memory: {{.Values.limits.memory}}
         readinessProbe:
           initialDelaySeconds: 20
-          periodSeconds: 15
+          periodSeconds: 60
           grpc:
             port: {{.Values.containerPort}}
         livenessProbe:
           initialDelaySeconds: 20
-          periodSeconds: 15
+          periodSeconds: 60
           grpc:
             port: {{.Values.containerPort}}
