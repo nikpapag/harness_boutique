@@ -1,0 +1,111 @@
+
+{{- if .Values.env.config}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{lower .Values.name}}
+data:
+{{.Values.env.config | toYaml | indent 2}}
+---
+{{- end}}
+
+{{- if .Values.env.secrets}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{lower .Values.name}}
+stringData:
+{{.Values.env.secrets | toYaml | indent 2}}
+---
+{{- end}}
+
+{{- if .Values.dockercfg}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{lower .Values.name}}-dockercfg
+  annotations:
+    harness.io/skip-versioning: "true"
+data:
+  .dockercfg: {{.Values.dockercfg}}
+type: kubernetes.io/dockercfg
+---
+{{- end}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{lower .Values.name}}-deployment
+  labels:
+    app: {{lower .Values.name}}
+spec:
+  selector:
+    matchLabels:
+      app: {{lower .Values.name}}
+  template:
+    metadata:
+      labels:
+        app: {{lower .Values.name}}
+    spec:
+      serviceAccountName: {{lower .Values.serviceAccount}}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: {{.Values.image}}
+        env:
+        {{- if or .Values.env.config .Values.env.secrets}}
+        envFrom:
+        {{- if .Values.env.config}}
+        - configMapRef:
+            name: {{lower .Values.name}}
+        {{- end}}
+        {{- if .Values.env.secrets}}
+        - secretRef:
+            name: {{lower .Values.name}}
+        {{- end}}
+        {{- end}}    
+        ports:
+        - containerPort: {{.Values.containerPort}}
+        resources:
+          requests:
+            cpu: {{.Values.requests.cpu}}
+            memory:  {{.Values.requests.memory}}
+          limits:
+            cpu: {{.Values.limits.cpu}}
+            memory: {{.Values.limits.memory}}
+        readinessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: "/_healthz"
+            port: {{.Values.containerPort}}
+            httpHeaders:
+            - name: "Cookie"
+              value: "shop_session-id=x-readiness-probe"
+        livenessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: "/_healthz"
+            port: {{.Values.containerPort}}
+            httpHeaders:
+            - name: "Cookie"
+              value: "shop_session-id=x-liveness-probe"
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{lower .Values.serviceAccount}}
+
