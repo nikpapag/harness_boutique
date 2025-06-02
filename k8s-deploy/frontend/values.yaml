@@ -1,0 +1,51 @@
+name: <+service.name>
+replicas: 1
+
+
+namespace: <+infra.namespace>
+createNamespace: "true"
+image: <+artifact.image>
+dockercfg: <+artifact.imagePullSecret>
+
+# A Service can map an incoming port to any targetPort.
+# targetPort is where application is listening on inside the container.
+servicePort: <+serviceVariables.service_port>
+serviceTargetPort: <+serviceVariables.service_target_port>
+serviceType: <+serviceVariables.service_type>
+servicePortName: <+serviceVariables.service_port_name>
+
+
+# Deployment service account
+serviceAccount: <+serviceVariables.service_account>
+
+
+#Container details
+containerPort: <+serviceVariables.container_port>
+
+
+#Container Spec
+requests:
+  cpu: <+serviceVariables.container_requests_cpu>
+  memory: <+serviceVariables.container_requests_memory>
+limits:
+  cpu: <+serviceVariables.container_limits_cpu>
+  memory: <+serviceVariables.container_limits_memory>
+
+
+env:
+  config:
+    PORT: <+serviceVariables.container_port>
+    PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+    SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+    CART_SERVICE_ADDR: "cartservice:7070"
+    PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+    EMAIL_SERVICE_ADDR: "emailservice:5000"
+    CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+    REDIS_ADDR: "redis-cart:6379"
+    RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8080"
+    CHECKOUT_SERVICE_ADDR: "checkoutservice:5050"
+    AD_SERVICE_ADDR: "adservice:9555"
+    SHOPPING_ASSISTANT_SERVICE_ADDR: "shoppingassistantservice:80"
+    ENABLE_PROFILER: "0"
+  secrets:
+    key2: value2
