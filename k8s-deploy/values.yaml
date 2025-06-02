@@ -9,31 +9,43 @@ dockercfg: <+artifact.imagePullSecret>
 
 # A Service can map an incoming port to any targetPort.
 # targetPort is where application is listening on inside the container.
-servicePort: <+service.variables.service_port>
-serviceTargetPort: <+service.variables.service_target_port>
-serviceType: <+service.variables.service_type>
-servicePortName: <+service.variables.service_port_name>
+servicePort: <+serviceVariables.service_port>
+serviceTargetPort: <+serviceVariables.service_target_port>
+serviceType: <+serviceVariables.service_type>
+servicePortName: <+serviceVariables.service_port_name>
 
 
 # Deployment service account
-serviceAccount: <+service.variables.service_account>
+serviceAccount: <+serviceVariables.service_account>
 
 
 #Container details
-containerPort: <+service.variables.container_port>
+containerPort: <+serviceVariables.container_port>
 
 
 #Container Spec
 requests:
-  cpu: <+service.variables.container_requests_cpu>
-  memory: <+service.variables.container_requests_memory>
+  cpu: <+serviceVariables.container_requests_cpu>
+  memory: <+serviceVariables.container_requests_memory>
 limits:
-  cpu: <+service.variables.container_limits_cpu>
-  memory: <+service.variables.container_limits_memory>
+  cpu: <+serviceVariables.container_limits_cpu>
+  memory: <+serviceVariables.container_limits_memory>
 
 
 env:
   config:
-    PORT: <+service.variables.container_port>
+    PORT: <+serviceVariables.container_port>
+    PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+    SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+    CART_SERVICE_ADDR: "cartservice:7070"
+    PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+    EMAIL_SERVICE_ADDR: "emailservice:5000"
+    CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+    REDIS_ADDR: "redis-cart:6379"
+    RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8080"
+    DISABLE_PROFILER: "1"
+    CHECKOUT_SERVICE_ADDR: "checkoutservice:5050"
+    AD_SERVICE_ADDR: "adservice:9555"
+    SHOPPING_ASSISTANT_SERVICE_ADDR: "shoppingassistantservice:80"
   secrets:
     key2: value2
